@@ -1,0 +1,9 @@
+{
+  "name": "bats-snapshot",
+  "version": "0.1.0",
+  "private": true,
+  "peerDependencies": {
+    "bats-support": "git+https://github.com/ztombol/bats-support.git#v0.2.0",
+    "bats-assert": "git+https://github.com/ztombol/bats-assert.git#v0.3.0"
+  }
+}
