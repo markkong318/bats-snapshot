@@ -12,5 +12,5 @@ setup() {
 }
 
 teardown() {
-  rm -rf $TEST_SNAPSHOT_DIR
+#  rm -rf $TEST_SNAPSHOT_DIR
 }

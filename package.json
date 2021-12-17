@@ -1,8 +1,23 @@
 {
   "name": "bats-snapshot",
-  "version": "0.1.0",
-  "peerDependencies": {
-    "bats-support": "git+https://github.com/ztombol/bats-support.git#v0.2.0",
-    "bats-assert": "git+https://github.com/ztombol/bats-assert.git#v0.3.0"
-  }
+  "version": "0.2.0",
+  "description": "Snapshot test for bats",
+  "scripts": {
+    "test": "cd test && ./50-assert-01-assert_snapshot.bats"
+  },
+  "dependencies": {
+    "bats-assert": "^2.0.0",
+    "bats-support": "^0.3.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkong318/bats-snapshot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markkong318/bats-snapshot/issues"
+  },
+  "homepage": "https://github.com/markkong318/bats-snapshot#readme"
 }

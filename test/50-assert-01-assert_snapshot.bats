@@ -2,7 +2,6 @@
 
 load test_helper
 
-
 #
 # Literal matching
 #
@@ -11,7 +10,8 @@ load test_helper
 @test "assert_snapshot() <expected>: returns 0 if <expected> equals \`\$output'" {
   run echo 'a'
   run assert_snapshot
-  [ "$status" -eq 0 ]
+  run echo 'a'
+  run assert_snapshot
   [ "${#lines[@]}" -eq 0 ]
 }
 
@@ -20,7 +20,6 @@ load test_helper
   run assert_snapshot
   run echo 'b'
   run assert_snapshot
-  echo $line
   [ "$status" -eq 1 ]
   [ "${#lines[@]}" -eq 4 ]
   [ "${lines[0]}" == '-- output differs --' ]
@@ -80,7 +79,6 @@ test_p_partial () {
   run echo 'b'
   run assert_snapshot
   run echo 'abc'
-  echo "output: $output   1: $1"
   run assert_snapshot "$1"
   [ "$status" -eq 0 ]
   [ "${#lines[@]}" -eq 0 ]
@@ -174,12 +172,15 @@ test_r_regexp () {
 # Correctness
 @test "assert_snapshot() --regexp <regexp>: returns 0 if <regexp> matches \`\$output'" {
   run printf 'a\nb\nc'
+  run assert_snapshot
+  run printf 'a\nb\nc'
   run assert_snapshot --regexp '.*b.*'
   [ "$status" -eq 0 ]
   [ "${#lines[@]}" -eq 0 ]
 }
 
 @test "assert_snapshot() --regexp <regexp>: returns 1 and displays details if <regexp> does not match \`\$output'" {
+  run echo 'b'
   run assert_snapshot
   run echo 'b'
   run assert_snapshot --regexp '.*a.*'
@@ -193,6 +194,7 @@ test_r_regexp () {
 
 # Output formatting
 @test "assert_snapshot() --regexp <regexp>: displays details in multi-line format if \`\$output' is longer than one line" {
+  run printf 'b 0\nb 1'
   run assert_snapshot
   run printf 'b 0\nb 1'
   run assert_snapshot --regexp '.*a.*'
@@ -208,6 +210,7 @@ test_r_regexp () {
 }
 
 @test 'assert_snapshot() --regexp <regexp>: displays details in multi-line format if <regexp> is longer than one line' {
+  run echo 'b'
   run assert_snapshot
   run echo 'b'
   run assert_snapshot --regexp $'.*a\nb.*'
@@ -226,7 +229,6 @@ test_r_regexp () {
 @test 'assert_snapshot() --regexp <regexp>: returns 1 and displays an error message if <regexp> is not a valid extended regular expression' {
   run assert_snapshot
   run assert_snapshot --regexp '[.*'
-
   [ "$status" -eq 1 ]
   [ "${#lines[@]}" -eq 3 ]
   [ "${lines[0]}" == '-- ERROR: assert_output --' ]
@@ -254,4 +256,30 @@ test_r_regexp () {
   run assert_snapshot -- '-p'
   [ "$status" -eq 0 ]
   [ "${#lines[@]}" -eq 0 ]
+}
+
+@test "assert_snapshot() status: return 1 if status is not match" {
+  run exit 1
+  run assert_snapshot
+  run exit 0
+  run assert_snapshot
+  [ "$status" -eq 1 ]
+  [ "${#lines[@]}" -eq 4 ]
+  [ "${lines[0]}" == '-- status do not equal --' ]
+  [ "${lines[1]}" == 'expected : 1' ]
+  [ "${lines[2]}" == 'actual   : 0' ]
+  [ "${lines[3]}" == '--' ]
+}
+
+@test "assert_snapshot() status: return 1 if status is not match" {
+  run exit 0
+  run assert_snapshot
+  run exit 1
+  run assert_snapshot
+  [ "$status" -eq 1 ]
+  [ "${#lines[@]}" -eq 4 ]
+  [ "${lines[0]}" == '-- status do not equal --' ]
+  [ "${lines[1]}" == 'expected : 0' ]
+  [ "${lines[2]}" == 'actual   : 1' ]
+  [ "${lines[3]}" == '--' ]
 }

@@ -40,16 +40,27 @@ assert_snapshot() {
   file="$BATS_TEST_DIRNAME/__snapshot__/$(basename ${BATS_TEST_FILENAME%.*})-$(printf %02d $BATS_TEST_NUMBER)-$BATS_TEST_NAME.snap"
 
   if [ ! -e $file ]; then
-    echo "$status" >> $file
+    if [ -z $status ]; then
+       echo "0" >> $file
+     else
+       echo "$status" >> $file
+     fi
+#    [[ -z $status ]] && echo 0 || echo "$status" >> $file
     echo "$output" >> $file
     return
   fi
 
-  echo "→ test on status"
-  snapshot_status=$(head -n 1 $file)
-  echo "→ test on output"
-  snapshot_output=$(tail -n +2 $file)
 
-  assert_equal "$status" "$snapshot_status"
+  snapshot_status=$(head -n 1 $file)
+  if [[ $status != "$snapshot_status" ]]; then
+    batslib_print_kv_single_or_multi 8 \
+        'expected' "$snapshot_status" \
+        'actual'   "$status" \
+      | batslib_decorate 'status do not equal' \
+      | fail
+      return 1
+  fi
+
+  snapshot_output=$(tail -n +2 $file)
   assert_output "$@" "$snapshot_output"
 }
